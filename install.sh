@@ -1,24 +1,13 @@
 #!/bin/bash
 
-echo "🚀 Démarrage de l'installation des Dotfiles..."
+echo "🚀 Démarrage de l'installation des Dotfiles (Méthode Native Debian)..."
 
-# 1. On s'assure qu'on est dans le répertoire personnel
+# 1. On s'assure qu'on est à la racine de l'utilisateur
 cd ~
 
-# 2. On copie (ou on met à jour) ton fichier personnel caché à la racine
-cp dotfiles/.my_bashrc ~/.my_bashrc
-echo "✅ Fichier .my_bashrc copié."
+# 2. On écrase l'ancien fichier local par la nouvelle version de ton GitHub
+cp dotfiles/.bash_aliases ~/.bash_aliases
 
-# 3. La vérification de sécurité (idempotence)
-# On cherche le mot "source ~/.my_bashrc" dans le .bashrc en mode silencieux (-q)
-if grep -q "source ~/.my_bashrc" ~/.bashrc; then
-    echo "⏭️  Le .bashrc est déjà configuré, on ne touche à rien."
-else
-    # Si le texte n'y est pas, on l'ajoute proprement à la fin
-    echo "" >> ~/.bashrc
-    echo "# Chargement de la configuration Masten (GitHub)" >> ~/.bashrc
-    echo "source ~/.my_bashrc" >> ~/.bashrc
-    echo "✅ Configuration injectée dans le .bashrc."
-fi
-
-echo "🎉 Installation terminée ! Tape 'source ~/.bashrc' pour appliquer."
+echo "✅ Fichier .bash_aliases mis en place avec succès."
+echo "🎉 Installation terminée ! Le système Debian s'occupe du reste."
+echo "🔄 Tape 'source ~/.bashrc' pour recharger l'environnement."
