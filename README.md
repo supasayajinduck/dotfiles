@@ -1,6 +1,6 @@
 # dotfiles
 
-Configuration personnelle pour environnement Linux. Ce dépôt contient tous les fichiers de configuration (dotfiles) nécessaires pour configurer rapidement une nouvelle VM Linux avec mon setup habituel.
+Configuration personnelle pour environnement Debian GNU/Linux 12 (bookworm). Ce dépôt contient tous les fichiers de configuration (dotfiles) nécessaires pour configurer rapidement une nouvelle VM Linux Debian GNU/Linux 12 (bookworm) avec mon setup habituel.
 
 ## 📋 Table des matières
 
