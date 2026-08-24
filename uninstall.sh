@@ -57,13 +57,11 @@ log_success() {
 }
 
 log_warning() {
-    printf[0m %s\n' "$*"
-() {
- '\033[1;33m[WARN]\
+    printf '\033[1;33m[WARN]\033[0m %s\n' "$*"
+}
+
 log_error() {
-    printf[0m %s\n' "$*"
-() {
-033[0m %s\n' "$*" >&2
+    printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2
 }
 
 die() {
