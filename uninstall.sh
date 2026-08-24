@@ -32,8 +32,8 @@ readonly TIMESTAMP="$(date +'%Y%m%d-%H%M%S')"
 readonly BACKUP_ROOT="${HOME}/.dotfiles-backup"
 readonly UNINSTALL_BACKUP_DIR="${BACKUP_ROOT}/uninstall-${TIMESTAMP}"
 
-readonly BASHRC_MARKER_START="# >>> dotfiles managed block >>>"
-readonly BASHRC_MARKER_END="# <<< dotfiles managed block <<<"
+readonly BASHRC_MARKER_START='# >>> dotfiles managed block >>>'
+readonly BASHRC_MARKER_END='# <<< dotfiles managed block <<<'
 
 DRY_RUN=false
 LIST_BACKUPS=false
