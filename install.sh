@@ -21,17 +21,17 @@ set -Eeuo pipefail
 # Variables globales
 ###############################################################################
 
-readonly SCRIPT_NAME
-readonly SCRIPT_DIR
-readonly TIMESTAMP
-readonly BACKUP_ROOT
-readonly BACKUP_DIR
-
 SCRIPT_NAME="$(basename -- "$0")"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 TIMESTAMP="$(date +'%Y%m%d-%H%M%S')"
 BACKUP_ROOT="${HOME}/.dotfiles-backup"
 BACKUP_DIR="${BACKUP_ROOT}/${TIMESTAMP}"
+
+readonly SCRIPT_NAME
+readonly SCRIPT_DIR
+readonly TIMESTAMP
+readonly BACKUP_ROOT
+readonly BACKUP_DIR
 
 DISTRO_ID=""
 DISTRO_NAME=""
@@ -51,7 +51,6 @@ BACKUP_CREATED=false
 
 AVAILABLE_ADMIN_PACKAGES=()
 UNAVAILABLE_ADMIN_PACKAGES=()
-
 ###############################################################################
 # Paquets Debian et Ubuntu
 ###############################################################################
