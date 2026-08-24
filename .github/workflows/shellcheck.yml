@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   validate-shell:
-    name: Bash syntax and ShellCheck
+    name: Bash validation and smoke tests
     runs-on: ubuntu-latest
 
     timeout-minutes: 10
@@ -49,11 +49,31 @@ jobs:
       - name: Validate Bash syntax
         shell: bash
         run: |
-          echo "Checking install.sh"
           bash -n install.sh
-          
-          echo "Checking uninstall.sh"
           bash -n uninstall.sh
+
+      - name: Run non-destructive smoke tests
+        shell: bash
+        run: |
+          TEST_HOME="${RUNNER_TEMP}/dotfiles-test-home"
+          mkdir -p "$TEST_HOME"
+
+          echo "Testing install.sh help"
+          HOME="$TEST_HOME" bash install.sh --help > /dev/null
+
+          echo "Testing base package listing"
+          HOME="$TEST_HOME" bash install.sh --list-packages > /dev/null
+
+          echo "Testing admin package listing"
+          HOME="$TEST_HOME" bash install.sh --admin --list-packages > /dev/null
+
+          echo "Testing uninstall.sh help"
+          HOME="$TEST_HOME" bash uninstall.sh --help > /dev/null
+
+          echo "Testing backup listing"
+          HOME="$TEST_HOME" bash uninstall.sh --list-backups > /dev/null
+
+          echo "All non-destructive smoke tests passed"
 
       - name: Run ShellCheck
         shell: bash
