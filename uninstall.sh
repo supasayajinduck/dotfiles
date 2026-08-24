@@ -26,11 +26,17 @@ set -Eeuo pipefail
 # Variables globales
 ###############################################################################
 
-readonly SCRIPT_NAME="$(basename -- "$0")"
-readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-readonly TIMESTAMP="$(date +'%Y%m%d-%H%M%S')"
-readonly BACKUP_ROOT="${HOME}/.dotfiles-backup"
-readonly UNINSTALL_BACKUP_DIR="${BACKUP_ROOT}/uninstall-${TIMESTAMP}"
+readonly SCRIPT_NAME
+readonly SCRIPT_DIR
+readonly TIMESTAMP
+readonly BACKUP_ROOT
+readonly UNINSTALL_BACKUP_DIR
+
+SCRIPT_NAME="$(basename -- "$0")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+TIMESTAMP="$(date +'%Y%m%d-%H%M%S')"
+BACKUP_ROOT="${HOME}/.dotfiles-backup"
+UNINSTALL_BACKUP_DIR="${BACKUP_ROOT}/uninstall-${TIMESTAMP}"
 
 readonly BASHRC_MARKER_START='# >>> dotfiles managed block >>>'
 readonly BASHRC_MARKER_END='# <<< dotfiles managed block <<<'
@@ -39,11 +45,6 @@ DRY_RUN=false
 LIST_BACKUPS=false
 RESTORE_BACKUP_DIR=""
 UNINSTALL_BACKUP_CREATED=false
-
-REMOVED_LINKS=()
-SKIPPED_TARGETS=()
-RESTORED_FILES=()
-
 ###############################################################################
 # Affichage
 ###############################################################################
