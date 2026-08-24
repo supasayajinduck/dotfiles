@@ -177,6 +177,101 @@ jobs:
               bash uninstall.sh --help > /dev/null
               bash uninstall.sh --list-backups > /dev/null
             '
+      - name: Test dotfiles lifecycle
+        shell: bash
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            --workdir /workspace \
+            --env HOME=/tmp/dotfiles-test-home \
+            "${{ matrix.image }}" \
+            bash -c '
+              set -Eeuo pipefail
+
+              marker_start="# >>> dotfiles managed block >>>"
+              marker_end="# <<< dotfiles managed block <<<"
+
+              mkdir -p "$HOME"
+
+              echo "# Existing Bash configuration" > "$HOME/.bashrc"
+              echo "export EXISTING_SETTING=preserved" >> "$HOME/.bashrc"
+
+              echo "Running first dotfiles installation"
+              bash install.sh --dotfiles-only
+
+              echo "Checking symbolic links"
+
+              test -L "$HOME/.bash_aliases"
+              test -L "$HOME/.tmux.conf"
+              test -L "$HOME/.vimrc"
+
+              test "$(readlink -f "$HOME/.bash_aliases")" = \
+                   "/workspace/config/bash/.bash_aliases"
+
+              test "$(readlink -f "$HOME/.tmux.conf")" = \
+                   "/workspace/config/tmux/.tmux.conf"
+
+              test "$(readlink -f "$HOME/.vimrc")" = \
+                   "/workspace/config/vim/.vimrc"
+
+              echo "Checking managed Bash block"
+
+              test "$(grep -Fc "$marker_start" "$HOME/.bashrc")" -eq 1
+              test "$(grep -Fc "$marker_end" "$HOME/.bashrc")" -eq 1
+
+              grep -Fq \
+                "export EXISTING_SETTING=preserved" \
+                "$HOME/.bashrc"
+
+              echo "Checking installation backup"
+
+              backup_count="$(
+                find "$HOME/.dotfiles-backup" \
+                  -mindepth 1 \
+                  -maxdepth 1 \
+                  -type d |
+                wc -l
+              )"
+
+              test "$backup_count" -ge 1
+
+              echo "Running second dotfiles installation"
+              bash install.sh --dotfiles-only
+
+              echo "Checking idempotence"
+
+              test "$(grep -Fc "$marker_start" "$HOME/.bashrc")" -eq 1
+              test "$(grep -Fc "$marker_end" "$HOME/.bashrc")" -eq 1
+
+              test -L "$HOME/.bash_aliases"
+              test -L "$HOME/.tmux.conf"
+              test -L "$HOME/.vimrc"
+
+              echo "Running dotfiles uninstallation"
+              bash uninstall.sh
+
+              echo "Checking removed symbolic links"
+
+              test ! -e "$HOME/.bash_aliases"
+              test ! -L "$HOME/.bash_aliases"
+
+              test ! -e "$HOME/.tmux.conf"
+              test ! -L "$HOME/.tmux.conf"
+
+              test ! -e "$HOME/.vimrc"
+              test ! -L "$HOME/.vimrc"
+
+              echo "Checking cleaned Bash configuration"
+
+              test "$(grep -Fc "$marker_start" "$HOME/.bashrc" || true)" -eq 0
+              test "$(grep -Fc "$marker_end" "$HOME/.bashrc" || true)" -eq 0
+
+              grep -Fq \
+                "export EXISTING_SETTING=preserved" \
+                "$HOME/.bashrc"
+
+              echo "Dotfiles lifecycle test passed"
+            '
 
       - name: Display test result
         shell: bash
