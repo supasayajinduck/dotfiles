@@ -8,4 +8,5 @@ fi
 #### Alias personnalisés ##
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ll='ls -laht --group-directories-first'
 ###########################
