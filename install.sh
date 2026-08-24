@@ -652,7 +652,7 @@ create_symlink() {
 
 configure_bashrc() {
     local bashrc="${HOME}/.bashrc"
-    local marker_start="# >>> dotfiles managed block >>>"
+    local marker_start='# >>> dotfiles managed block >>>'
 
     validate_target_path "$bashrc"
 
