@@ -50,10 +50,10 @@ jobs:
         shell: bash
         run: |
           echo "Checking install.sh"
-          bash -nv install.sh
+          bash -n install.sh
           
           echo "Checking uninstall.sh"
-          bash -nv uninstall.sh
+          bash -n uninstall.sh
 
       - name: Run ShellCheck
         shell: bash
