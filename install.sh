@@ -247,7 +247,7 @@ Le script utilisera sudo uniquement pour installer les paquets."
     [[ -d "$HOME" ]] ||
         die "Le répertoire personnel n'existe pas : ${HOME}"
 
-    [[[ -d "$HOME"  "Le répertoire personnel||
+    [[[ -d "$HOME"  "Le répertoire personnel"||
         die "Impossible de lire le script depuis : ${SCRIPT_DIR}"
 
     log_info "Utilisateur cible : $(id -un)"
