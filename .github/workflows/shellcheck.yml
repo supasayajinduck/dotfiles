@@ -272,6 +272,45 @@ jobs:
 
               echo "Dotfiles lifecycle test passed"
             '
+      - name: Validate required APT packages
+        if: matrix.expected-id == 'ubuntu' || matrix.expected-id == 'debian'
+        shell: bash
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            --workdir /workspace \
+            --env HOME=/tmp/dotfiles-test-home \
+            "${{ matrix.image }}" \
+            bash -c '
+              set -Eeuo pipefail
+
+              mkdir -p "$HOME"
+
+              echo "Updating APT package metadata"
+              apt-get update > /dev/null
+
+              mapfile -t base_packages < <(
+                bash install.sh --list-packages |
+                sed -n "s/^  - //p"
+              )
+
+              if [[ ${#base_packages[@]} -eq 0 ]]; then
+                echo "No base packages were detected" >&2
+                exit 1
+              fi
+
+              echo "Required base packages:"
+              printf "  - %s\n" "${base_packages[@]}"
+
+              echo "Simulating base package installation"
+              apt-get install \
+                --simulate \
+                --no-install-recommends \
+                "${base_packages[@]}" \
+                > /dev/null
+
+              echo "All required APT packages can be resolved"
+            '
 
       - name: Display test result
         shell: bash
