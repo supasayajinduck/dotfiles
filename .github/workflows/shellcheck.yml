@@ -22,7 +22,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: shellcheck-${{ github.workflow }}-${{ github.ref }}
+  group: dotfiles-validation-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -83,3 +83,102 @@ jobs:
             --severity=style \
             install.sh \
             uninstall.sh
+
+  test-distributions:
+    name: Test ${{ matrix.name }}
+    needs: validate-shell
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          - name: Ubuntu 24.04
+            image: ubuntu:24.04
+            expected-id: ubuntu
+
+          - name: Debian 12
+            image: debian:12
+            expected-id: debian
+
+          - name: Rocky Linux 9
+            image: rockylinux/rockylinux:9
+            expected-id: rocky
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Pull container image
+        shell: bash
+        run: docker pull "${{ matrix.image }}"
+
+      - name: Verify distribution identity
+        shell: bash
+        run: |
+          detected_id="$(
+            docker run --rm \
+              "${{ matrix.image }}" \
+              bash -c '. /etc/os-release && printf "%s" "$ID"'
+          )"
+
+          echo "Expected distribution ID: ${{ matrix.expected-id }}"
+          echo "Detected distribution ID: ${detected_id}"
+
+          if [[ "$detected_id" != "${{ matrix.expected-id }}" ]]; then
+            echo "Unexpected distribution ID" >&2
+            exit 1
+          fi
+
+      - name: Validate Bash syntax in container
+        shell: bash
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            --workdir /workspace \
+            "${{ matrix.image }}" \
+            bash -n install.sh
+
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            --workdir /workspace \
+            "${{ matrix.image }}" \
+            bash -n uninstall.sh
+
+      - name: Test installer options
+        shell: bash
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            --workdir /workspace \
+            --env HOME=/tmp/dotfiles-test-home \
+            "${{ matrix.image }}" \
+            bash -c '
+              mkdir -p "$HOME"
+              bash install.sh --help > /dev/null
+              bash install.sh --list-packages > /dev/null
+              bash install.sh --admin --list-packages > /dev/null
+              bash install.sh --all --list-packages > /dev/null
+            '
+
+      - name: Test uninstaller options
+        shell: bash
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            --workdir /workspace \
+            --env HOME=/tmp/dotfiles-test-home \
+            "${{ matrix.image }}" \
+            bash -c '
+              mkdir -p "$HOME"
+              bash uninstall.sh --help > /dev/null
+              bash uninstall.sh --list-backups > /dev/null
+            '
+
+      - name: Display test result
+        shell: bash
+        run: |
+          echo "Non-destructive tests passed on ${{ matrix.name }}"
