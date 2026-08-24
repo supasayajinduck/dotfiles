@@ -49,8 +49,11 @@ jobs:
       - name: Validate Bash syntax
         shell: bash
         run: |
-          bash -n install.sh
-          bash -n uninstall.sh
+          echo "Checking install.sh"
+          bash -nv install.sh
+          
+          echo "Checking uninstall.sh"
+          bash -nv uninstall.sh
 
       - name: Run ShellCheck
         shell: bash
